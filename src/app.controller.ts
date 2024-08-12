@@ -11,13 +11,13 @@ export class AppController {
 
   @Get()
   async getUsers() {
-    return await this.firebaseService.getUsers('users');
+    // return await this.firebaseService.getUsers('users');
   }
 
   @Post()
   async addUser (
     @Body() user: any
   ) {
-    return await this.firebaseService.addUser(user);
+    // return await this.firebaseService.addUser(user);
   }
 }

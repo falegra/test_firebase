@@ -1,6 +1,7 @@
 import { Inject, Injectable } from "@nestjs/common";
 import * as admin from 'firebase-admin';
 import { Collections } from "src/common/enum/collections.enum";
+import { Roles } from "src/common/enum/roles.enum";
 import { FirebaseService } from "src/firebase/firebase.service";
 import { HelpersService } from "src/helpers/helpers.service";
 
@@ -63,7 +64,7 @@ export class UserModel {
             //     return null;
             // }
 
-            console.log(snapshot.docs);
+            // console.log(snapshot.docs);
 
             if(snapshot.docs.length === 0) {
                 return null;
@@ -102,7 +103,8 @@ export class UserModel {
                 createdDate,
                 verificationCode,
                 isActive: false,
-                profileImage: null
+                profileImage: null,
+                role: Roles.CLIENT
             });
 
             return docRef;

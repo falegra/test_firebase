@@ -1,5 +1,6 @@
 serviceAccountKey.json
 .env
+/uploads
 
 
 # compiled output

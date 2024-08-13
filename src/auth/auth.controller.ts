@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Res, UploadedFiles, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Get, Post, Res, UploadedFiles, UseGuards, UseInterceptors } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from './dto/createUser.dto';
 import { Response } from 'express';
@@ -6,6 +6,9 @@ import { ApiTags } from '@nestjs/swagger';
 import { VerificationCodeDto } from './dto/verificationCode.dto';
 import { LoginDto } from './dto/login.dto';
 import { FilesInterceptor } from '@nestjs/platform-express';
+import { ClientGuard } from './client.guard';
+import { ActiveUser } from 'src/common/decorators/activeUser.decorator';
+import { IActiveUser } from 'src/common/interfaces/activeUser.interface';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -40,10 +43,12 @@ export class AuthController {
 
     @Post('uploadProfileImage')
     @UseInterceptors(FilesInterceptor('files'))
+    @UseGuards(ClientGuard)
     uploadProfileImage (
         @UploadedFiles() files: Array<Express.Multer.File>,
+        @ActiveUser() activeUser: IActiveUser,
         @Res() res: Response
     ) {
-        return this.authService.uploadProfileImage(files, res);
+        return this.authService.uploadProfileImage(files, activeUser, res);
     }
 }

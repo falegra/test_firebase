@@ -9,6 +9,7 @@ import { LoginDto } from './dto/login.dto';
 import { join, resolve } from 'path';
 import { FirebaseService } from 'src/firebase/firebase.service';
 import { unlinkSync } from 'fs';
+import { IActiveUser } from 'src/common/interfaces/activeUser.interface';
 
 @Injectable()
 export class AuthService {
@@ -161,12 +162,21 @@ export class AuthService {
 
     async uploadProfileImage (
         files: Array<Express.Multer.File>,
+        {email}: IActiveUser,
         res: Response
     ) {
         try {
             if(!files) {
                 return res.status(400).json({
                     message: 'no files uploaded'
+                });
+            }
+
+            const userDb = await this.userModel.getBy('email', email);
+
+            if(!userDb) {
+                return res.status(404).json({
+                    message: 'user not found'
                 });
             }
 
@@ -189,6 +199,10 @@ export class AuthService {
             await this.firebaseService.uploadFile(filePath);
 
             unlinkSync(filePath);
+
+            await this.userModel.updateUser(userDb.id, {
+                profileImage: savedFile[0].url
+            });
 
             return res.status(200).json({
                 message: 'file uploaded successfully'

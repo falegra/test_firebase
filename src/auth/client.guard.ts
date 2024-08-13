@@ -1,7 +1,7 @@
 import { CanActivate, ExecutionContext, HttpException, Injectable, UnauthorizedException } from "@nestjs/common";
 import { Roles } from "src/common/enum/roles.enum";
 import { HelpersService } from "src/helpers/helpers.service";
-import { UserModel } from "src/user/model/userModel.model";
+import { UserModel } from "src/user/model/user.model";
 import { UserService } from "src/user/user.service";
 
 @Injectable()
@@ -29,7 +29,7 @@ export class ClientGuard implements CanActivate {
                 throw new HttpException('', 424);
             }
 
-            if(userDb.data.role !== Roles.CLIENT && userDb.data.role !== Roles.ADMIN) {
+            if(userDb.role !== Roles.CLIENT && userDb.role !== Roles.ADMIN) {
                 throw new UnauthorizedException();
             }
 

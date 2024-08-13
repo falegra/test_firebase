@@ -4,6 +4,7 @@ import { UserModule } from './user/user.module';
 import { HelpersModule } from './helpers/helpers.module';
 import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
+import { ProfileModule } from './profile/profile.module';
 
 @Module({
   imports: [
@@ -11,7 +12,8 @@ import { AuthModule } from './auth/auth.module';
     FirebaseModule,
     UserModule,
     HelpersModule,
-    AuthModule
+    AuthModule,
+    ProfileModule
   ],
   controllers: [],
   providers: [],

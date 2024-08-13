@@ -3,7 +3,7 @@ import { HelpersService } from 'src/helpers/helpers.service';
 import { UserService } from 'src/user/user.service';
 import { CreateUserDto } from './dto/createUser.dto';
 import { Response } from 'express';
-import { UserModel } from 'src/user/model/userModel.model';
+import { UserModel } from 'src/user/model/user.model';
 import { VerificationCodeDto } from './dto/verificationCode.dto';
 import { LoginDto } from './dto/login.dto';
 import { join, resolve } from 'path';
@@ -85,7 +85,7 @@ export class AuthService {
                 });
             }
 
-            if(userDb.data.verificationCode !== verificationCode) {
+            if(userDb.verificationCode !== verificationCode) {
                 return res.status(400).json({
                     message: 'incorrect verification code'
                 });
@@ -116,10 +116,10 @@ export class AuthService {
         res: Response
     ) {
         try {
-            let userDb = await this.userModel.getBy('username', username);
+            let userDb = await this.userModel.secureGetBy('username', username);
 
             if(!userDb) {
-                userDb = await this.userModel.getBy('email', username);
+                userDb = await this.userModel.secureGetBy('email', username);
             }
 
             if(!userDb) {
@@ -128,13 +128,13 @@ export class AuthService {
                 });
             }
 
-            if(!userDb.data.isActive) {
+            if(!userDb.isActive) {
                 return res.status(400).json({
                     message: 'user is not active'
                 });
             }
 
-            if(!this.helpersService.verify_password(password, userDb.data.password)) {
+            if(!this.helpersService.verify_password(password, userDb.password)) {
                 return res.status(400).json({
                     message: 'incorrect credentials'
                 });
@@ -142,7 +142,7 @@ export class AuthService {
 
             const token = this.helpersService.generate_token({
                 id: userDb.id,
-                email: userDb.data.email,
+                email: userDb.email,
             }, false);
 
             return res.status(200).json({

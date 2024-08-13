@@ -2,8 +2,8 @@ import { Inject, Injectable } from "@nestjs/common";
 import * as admin from 'firebase-admin';
 import { Collections } from "src/common/enum/collections.enum";
 import { Roles } from "src/common/enum/roles.enum";
-import { FirebaseService } from "src/firebase/firebase.service";
 import { HelpersService } from "src/helpers/helpers.service";
+import { User } from "../entities/user.entity";
 
 @Injectable()
 export class UserModel {
@@ -12,17 +12,50 @@ export class UserModel {
         private readonly helpersService: HelpersService
     ) {}
 
+    private toUser (
+        snapshot: any
+    ) {
+        const {
+            username,
+            email,
+            password,
+            createdDate,
+            isActive,
+            verificationCode,
+            role,
+            profileImage,
+        } = snapshot.data();
+
+        const userDb: User = {
+            id: snapshot.id,
+            username,
+            email,
+            password,
+            createdDate,
+            isActive,
+            verificationCode,
+            role,
+            profileImage,
+        };
+
+        return userDb;
+    }
+
     async getAll () {
         try {
-            const snapshot = await this.firebaseAdmin.firestore().collection(Collections.USER).get();
+            const snapshots = await this.firebaseAdmin.firestore().collection(Collections.USER).get();
             let data = [];
+            let users: Array<User> = [];
 
-            snapshot.forEach((snap) => {
+            snapshots.forEach((snap) => {
                 data.push({
                     id: snap.id,
                     data: snap.data()
                 });
+                users.push(this.toUser(snap));
             });
+
+            console.log(users);
 
             return data;
         } catch (error) {
@@ -60,24 +93,46 @@ export class UserModel {
                 .where(`${field}`, '==', value)
                 .get();
 
-            // if(!snapshot) {
-            //     return null;
-            // }
+            if(snapshot.docs.length === 0) {
+                return null;
+            }
 
-            // console.log(snapshot.docs);
+            const userDb = this.toUser(snapshot.docs[0]);
+
+            delete userDb.password;
+
+            return userDb;
+        } catch (error) {
+            this.helpersService.handleException (
+                'userModel.model',
+                'getByy',
+                error
+            );
+        }
+    }
+
+    async secureGetBy (
+        field: string,
+        value: string | number
+    ) {
+        try {
+            const snapshot = await this.firebaseAdmin.firestore().collection(Collections.USER)
+                .where(`${field}`, '==', value)
+                .get();
 
             if(snapshot.docs.length === 0) {
                 return null;
             }
 
-            return {
-                id: snapshot.docs[0].id,
-                data: snapshot.docs[0].data()
-            };
+            const userDb = this.toUser(snapshot.docs[0]);
+
+            delete userDb.password;
+
+            return userDb;
         } catch (error) {
             this.helpersService.handleException (
                 'userModel.model',
-                'getBy',
+                'getByy',
                 error
             );
         }

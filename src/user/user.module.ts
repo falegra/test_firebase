@@ -3,12 +3,14 @@ import { UserController } from './user.controller';
 import { UserService } from './user.service';
 import { FirebaseModule } from 'src/firebase/firebase.module';
 import { HelpersModule } from 'src/helpers/helpers.module';
-import { UserModel } from './model/userModel.model';
+import { UserModel } from './model/user.model';
+import { ProfileModule } from 'src/profile/profile.module';
 
 @Module({
   imports: [
     FirebaseModule,
-    HelpersModule
+    HelpersModule,
+    ProfileModule
   ],
   controllers: [UserController],
   providers: [

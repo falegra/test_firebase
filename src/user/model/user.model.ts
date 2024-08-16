@@ -92,10 +92,13 @@ export class UserModel {
                 .doc(id)
                 .get();
 
-            return {
-                id: snapshot.id,
-                data: snapshot.data()
-            }
+            const userDb: User = this.toUser(snapshot);
+
+            delete userDb.password;
+            delete userDb.createdDate;
+            delete userDb.verificationCode;
+
+            return userDb;
         } catch (error) {
             this.helpersService.handleException (
                 'userModel.model',
@@ -121,6 +124,8 @@ export class UserModel {
             const userDb = this.toUser(snapshot.docs[0]);
 
             delete userDb.password;
+            delete userDb.createdDate;
+            delete userDb.verificationCode;
 
             return userDb;
         } catch (error) {
@@ -146,8 +151,6 @@ export class UserModel {
             }
 
             const userDb = this.toUser(snapshot.docs[0]);
-
-            delete userDb.password;
 
             return userDb;
         } catch (error) {

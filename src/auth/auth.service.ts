@@ -73,10 +73,10 @@ export class AuthService {
         res: Response
     ) {
         try {
-            let userDb = await this.userModel.getBy('username', username);
+            let userDb = await this.userModel.secureGetBy('username', username);
 
             if(!userDb) {
-                userDb = await this.userModel.getBy('email', username);
+                userDb = await this.userModel.secureGetBy('email', username);
             }
 
             if(!userDb) {

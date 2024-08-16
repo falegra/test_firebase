@@ -55,6 +55,22 @@ export class UserService {
         }
     }
 
+    async getUsers (
+        res: Response
+    ) {
+        try {
+            const usersDb = await this.userModel.getAll();
+
+            return res.status(200).json({users: usersDb});
+        } catch (error) {
+            this.helpersService.handleException (
+                'user.service',
+                'getUsers',
+                error
+            );
+        }
+    }
+
 
 
 

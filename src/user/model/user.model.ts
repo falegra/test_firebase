@@ -4,12 +4,14 @@ import { Collections } from "src/common/enum/collections.enum";
 import { Roles } from "src/common/enum/roles.enum";
 import { HelpersService } from "src/helpers/helpers.service";
 import { User } from "../entities/user.entity";
+import { ProfileModel } from "src/profile/model/profile.model";
 
 @Injectable()
 export class UserModel {
     constructor (
         @Inject('FIREBASE_ADMIN') private readonly firebaseAdmin: admin.app.App,
-        private readonly helpersService: HelpersService
+        private readonly helpersService: HelpersService,
+        private readonly profileModel: ProfileModel
     ) {}
 
     private toUser (
@@ -24,6 +26,7 @@ export class UserModel {
             verificationCode,
             role,
             profileImage,
+            profile
         } = snapshot.data();
 
         const userDb: User = {
@@ -36,6 +39,7 @@ export class UserModel {
             verificationCode,
             role,
             profileImage,
+            profile
         };
 
         return userDb;
@@ -44,20 +48,37 @@ export class UserModel {
     async getAll () {
         try {
             const snapshots = await this.firebaseAdmin.firestore().collection(Collections.USER).get();
-            let data = [];
             let users: Array<User> = [];
 
             snapshots.forEach((snap) => {
-                data.push({
-                    id: snap.id,
-                    data: snap.data()
-                });
                 users.push(this.toUser(snap));
             });
 
-            console.log(users);
+            for(let i = 0; i < users.length ; i++) {
+                delete users[i].password;
+                delete users[i].createdDate;
+                delete users[i].verificationCode;
 
-            return data;
+                const p = await this.profileModel.handleGetProfile(users[i].profile + '');
+                users[i].profile = p;
+            }
+
+            return users;
+        } catch (error) {
+            console.log(error.message);
+        }
+    }
+
+    async secureGetAll () {
+        try {
+            const snapshots = await this.firebaseAdmin.firestore().collection(Collections.USER).get();
+            let users: Array<User> = [];
+
+            snapshots.forEach((snap) => {
+                users.push(this.toUser(snap));
+            });
+
+            return users;
         } catch (error) {
             console.log(error.message);
         }

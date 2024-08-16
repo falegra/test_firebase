@@ -1,4 +1,4 @@
-import { Body, Controller, Post, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Res, UseGuards } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { UserService } from './user.service';
 import { Response } from 'express';
@@ -22,5 +22,13 @@ export class UserController {
         @Res() res: Response
     ) {
         return this.userService.addProfile(addProfile, activeUser, res);
+    }
+
+    @Get('getUsers')
+    @UseGuards(ClientGuard)
+    getUsers (
+        @Res() res: Response
+    ) {
+        return this.userService.getUsers(res);
     }
 }
